@@ -15,8 +15,8 @@ require('./config/passport')(passport);
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true 
+  origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

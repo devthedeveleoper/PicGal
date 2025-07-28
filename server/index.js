@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const passport = require('passport');
 require('dotenv').config();
 
@@ -14,8 +15,8 @@ require('./config/passport')(passport);
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // Allow your React client's origin
-  credentials: true // Allow cookies to be sent
+  origin: 'http://localhost:5173',
+  credentials: true 
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,10 +25,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false, // Set to false, session is created on login
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    collectionName: 'sessions'
+  }),
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    httpOnly: true
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 // 1 day
   }
 }));
 

@@ -28,11 +28,20 @@ exports.loginUser = (req, res) => {
   res.status(200).json(req.user);
 };
 
-// @desc    Logout a user
+// @desc    Logout a user and destroy the session
 exports.logoutUser = (req, res, next) => {
-  req.logout(function(err) {
+  req.logout(function(err) { // Step 1: Passport's logout method
     if (err) { return next(err); }
-    res.status(200).json({ message: "Logged out successfully" });
+
+    // Step 2: Destroy the session in the database
+    req.session.destroy(function (err) { 
+      if (err) {
+        return next(err);
+      }
+      // Step 3: Clear the session cookie on the client side
+      res.clearCookie('connect.sid'); 
+      res.status(200).json({ message: "Logged out and session destroyed successfully" });
+    });
   });
 };
 
